@@ -53,11 +53,11 @@ export MY_ACTUAL_PK_BE_CAREFUL='<your_pk>'
 Run the `forge create` command, which deploys the contract:
 
 ```
-forge create --rpc-url $GOERLI_RPC \
+forge create --rpc-url $SEPOLIA_BASE_RPC \
     --private-key $MY_ACTUAL_PK_BE_CAREFUL \
     --etherscan-api-key $ETHERSCAN_API_KEY \
     --verify \
-    src/reference/ExampleNFT.sol:ExampleNFT
+    src/dynamic-traits/CryptoDadsOnchain.sol:CryptoDadsOnchain
 ```
 
 See https://book.getfoundry.sh/reference/forge/forge-create for more information on `forge create`.

@@ -3,7 +3,7 @@
   
 // USE THIS FROM THE SASSY TRAITS CONTRACT INSTEAD OF HARDCODING THE TRAITS LIKE ONCHAIN DINOS
 // Change the trait info to be fields needed not what was in sassy contract. Include dads and moms together with a field that distinguishes them.
-        function updateTraitInfo(uint256[] calldata traitIDs, string[] calldata names, string[] calldata sports, string[] calldata categories, string[] calldata rarities) external onlyOwner returns (uint256 numUpdated) {
+    function updateTraits(uint256[] calldata tokenIDs, string[] calldata names, string[] calldata sports, string[] calldata categories, string[] calldata rarities) external onlyOwner returns (uint256 numUpdated) {
         require(traitIDs.length == sports.length && traitIDs.length == categories.length && traitIDs.length == rarities.length, "ShreddingSassyTrait: Arrays must be same length");
         for (uint i = 0; i < traitIDs.length; i++) {
             traitIDToTraitInfo[traitIDs[i]] = TraitInfo(traitIDs[i], names[i], sports[i], categories[i], rarities[i]);
@@ -18,14 +18,24 @@
         
         
         /// Dino Trait Struct
-    struct TraitStruct {
-        uint body;
-        uint chest;
-        uint eye;
-        uint face;
-        uint feet;
-        uint head;
-        uint spike;
+    struct MetaDataStruct {
+        uint256 id;
+        string eyes;
+        string eyewear;
+        string hair_style;
+        string hair_color;
+        string hat;
+        string holding;
+        string shirt;
+        string dad_joke;
+        string facial_hair;
+        string mouth;
+        string skin;
+        string dads_top_picks;
+        string accessory;
+        string neck;
+        string jewelry;
+        string vibes;
     }
 
 //// Store a dinos traits here - this is filled when minted!
