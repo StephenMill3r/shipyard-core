@@ -4,8 +4,8 @@ pragma solidity ^0.8.4;
 import "./EOARegistry.sol";
 import "../interfaces/IOwnable.sol";
 import "../interfaces/ICreatorTokenTransferValidator.sol";
-import "@openzeppelin/contracts/access/IAccessControl.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "../../../../lib/openzeppelin-contracts/contracts/access/IAccessControl.sol";
+import "../../../../lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 
 /**
  * @title  CreatorTokenTransferValidator

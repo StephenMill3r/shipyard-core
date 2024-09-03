@@ -5,7 +5,7 @@ import "../access/OwnablePermissions.sol";
 import "../interfaces/ICreatorToken.sol";
 import "../interfaces/ICreatorTokenTransferValidator.sol";
 import "../utils/TransferValidation.sol";
-import "@openzeppelin/contracts/interfaces/IERC165.sol";
+import "../../../../lib/openzeppelin-contracts/contracts/interfaces/IERC165.sol";
 
 /**
  * @title CreatorTokenBase

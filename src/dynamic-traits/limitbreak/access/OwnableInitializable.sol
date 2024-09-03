@@ -3,7 +3,7 @@
 pragma solidity ^0.8.4;
 
 import "./OwnablePermissions.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "../../../../lib/openzeppelin-contracts/contracts/access/Ownable.sol";
 
 abstract contract OwnableInitializable is OwnablePermissions, Ownable {
 

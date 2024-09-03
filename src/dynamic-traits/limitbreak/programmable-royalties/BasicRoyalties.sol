@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts-upgradeable/token/common/ERC2981Upgradeable.sol";
+import "../../../../lib/openzeppelin-contracts/contracts/token/common/ERC2981.sol";
 
 /**
  * @title BasicRoyaltiesBase
  * @author Limit Break, Inc.
  * @dev Base functionality of an NFT mix-in contract implementing the most basic form of programmable royalties.
  */
-abstract contract BasicRoyaltiesBaseUpgradeable is ERC2981Upgradeable {
+abstract contract BasicRoyaltiesBase is ERC2981 {
     event DefaultRoyaltySet(address indexed receiver, uint96 feeNumerator);
     event TokenRoyaltySet(uint256 indexed tokenId, address indexed receiver, uint96 feeNumerator);
 
@@ -24,10 +24,21 @@ abstract contract BasicRoyaltiesBaseUpgradeable is ERC2981Upgradeable {
 }
 
 /**
- * @title BasicRoyaltiesUpgradeable
+ * @title BasicRoyalties
  * @author Limit Break, Inc.
  * @notice Constructable BasicRoyalties Contract implementation.
  */
-abstract contract BasicRoyaltiesUpgradeable is BasicRoyaltiesBaseUpgradeable {
+abstract contract BasicRoyalties is BasicRoyaltiesBase {
+    constructor(address receiver, uint96 feeNumerator) {
+        _setDefaultRoyalty(receiver, feeNumerator);
+    }
+}
+
+/**
+ * @title BasicRoyaltiesInitializable
+ * @author Limit Break, Inc.
+ * @notice Initializable BasicRoyalties Contract implementation to allow for EIP-1167 clones.
+ */
+abstract contract BasicRoyaltiesInitializable is BasicRoyaltiesBase {
 
 }
