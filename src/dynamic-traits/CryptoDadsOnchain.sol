@@ -8,10 +8,11 @@ import {ERC721CUpgradeable} from "@limitbreak/erc721c/ERC721C.sol";
 import {BasicRoyaltiesUpgradeable} from "@limitbreak/programmable-royalties/BasicRoyaltiesUpgradeable.sol";
 
 interface ITraitManager {
-    function initializeTraits(uint256 tokenId, string[17] calldata keys, string[17] calldata values) external;
-    function updateTraits(uint256 tokenId, string[3] calldata keys, string[3] calldata values) external;
+    function updateTraits(uint256 tokenId, string[] calldata keys, string[] calldata values) external;
     function tokenURI(uint256 tokenId) external view returns (string memory);
     function setBaseURI(string calldata newBaseURI) external;
+    function removeTrait(uint256 tokenId, string calldata key) external;
+    function InitialTraitsBulk(uint256[] calldata tokenIds, string calldata key, string[] calldata values) external;
 }
 
 contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesUpgradeable, OwnableUpgradeable {
@@ -19,9 +20,9 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
     ITraitManager public traitManager;
 
     function initialize(
-        string memory _name, 
-        string memory _symbol, 
-        address trustedAddress, 
+        string memory _name,
+        string memory _symbol,
+        address trustedAddress,
         address traitManagerAddress
     ) public initializer {
         __ERC2981_init();
@@ -46,52 +47,66 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
         _;
     }
 
+    // Set the trusted address that can initialize/update traits
     function setTrustedAddress(address newTrustedAddress) external onlyOwner {
         _trustedAddress = newTrustedAddress;
     }
 
+    // Set base URI for the metadata stored in TraitManager
     function setBaseURI(string calldata newBaseURI) external onlyOwner {
         traitManager.setBaseURI(newBaseURI);
     }
 
-    function initializeTraits(
-        uint256 tokenId, 
-        string[17] calldata keys, 
-        string[17] calldata values
-    ) external onlyTrusted {
-        traitManager.initializeTraits(tokenId, keys, values);
-    }
-
+    // Update traits for a specific tokenId
     function updateTraits(
-        uint256 tokenId, 
-        string[3] calldata keys, 
-        string[3] calldata values
+        uint256 tokenId,
+        string[] calldata keys,
+        string[] calldata values
     ) external onlyTrusted {
         traitManager.updateTraits(tokenId, keys, values);
     }
 
+    // Remove a specific trait by key for a tokenId
+    function removeTrait(uint256 tokenId, string calldata key) external onlyTrusted {
+        traitManager.removeTrait(tokenId, key);
+    }
+
+    // Bulk initialize traits for multiple tokenIds
+    function initializeTraitsBulk(
+        uint256[] calldata tokenIds,
+        string calldata key,
+        string[] calldata values
+    ) external onlyTrusted {
+        traitManager.InitialTraitsBulk(tokenIds, key, values);
+    }
+
+    // Return tokenURI by fetching from TraitManager
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         return traitManager.tokenURI(tokenId);
     }
 
+    // Function to airdrop multiple NFTs to different addresses
     function airdrop(address[] calldata _tokenOwners, uint[] calldata _tokenIds) external onlyOwner {
         require(_tokenOwners.length == _tokenIds.length, "CryptoDads: tokenOwners and tokenIds length mismatch");
         for (uint i = 0; i < _tokenOwners.length; i++) {
-            _safeMint(_tokenOwners[i], _tokenIds[i]); // this emits a Transfer event during the _mint function call
+            _safeMint(_tokenOwners[i], _tokenIds[i]);
         }
     }
 
+    // Function to update the trait manager's contract address
     function setTraitManager(address newTraitManagerAddress) external onlyOwner {
         require(newTraitManagerAddress != address(0), "Invalid TraitManager address");
         traitManager = ITraitManager(newTraitManagerAddress);
     }
 
-    function supportsInterface(bytes4 interfaceId) public view override(ERC721CUpgradeable, ERC2981Upgradeable) returns (bool) {
-        return ERC721CUpgradeable.supportsInterface(interfaceId) || ERC2981Upgradeable.supportsInterface(interfaceId);
-    }
-
+    // Function to set default royalty
     function setDefaultRoyalty(address receiver, uint96 feeNumerator) public onlyOwner {
         _setDefaultRoyalty(receiver, feeNumerator);
+    }
+
+    // ERC721CUpgradeable and ERC2981Upgradeable support interface override
+    function supportsInterface(bytes4 interfaceId) public view override(ERC721CUpgradeable, ERC2981Upgradeable) returns (bool) {
+        return ERC721CUpgradeable.supportsInterface(interfaceId) || ERC2981Upgradeable.supportsInterface(interfaceId);
     }
 
     function _requireCallerIsContractOwner() internal view virtual override {
