@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.4;
 
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
@@ -23,7 +23,8 @@ contract TraitManager {
         _;
     }
 
-    constructor(string memory _baseURI) {
+    // Function to set the baseURI, callable by the NFT contract
+    function setBaseURI(string memory _baseURI) external onlyNFTContract {
         baseURI = _baseURI;
     }
 
@@ -94,9 +95,5 @@ contract TraitManager {
 
         string memory jsonBase64 = Base64.encode(json);
         return string(abi.encodePacked("data:application/json;base64,", jsonBase64));
-    }
-
-    function setBaseURI(string calldata newBaseURI) external onlyNFTContract {
-        baseURI = newBaseURI;
     }
 }

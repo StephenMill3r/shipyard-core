@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT OR Apache-2.0
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.4;
 
 import "./erc721a/contracts/ERC721A.sol";
 import "./erc721a/contracts/extensions/ERC721ABurnable.sol";
@@ -7,7 +7,7 @@ import "./erc721a/contracts/extensions/ERC721AQueryable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
@@ -52,7 +52,7 @@ contract ShoeBox is
     /// @notice event emitted when MATIC is received
     event Received(address indexed sender, uint256 value);
 
-    constructor() ERC721A("CryptoDad ShoeBox", "SHOEBOX") Ownable(msg.sender) {}
+    constructor() ERC721A("CryptoDad ShoeBox", "SHOEBOX") Ownable() {}
 
     /**
      * @notice The external mint function that will be called by the frontend.
@@ -265,7 +265,7 @@ contract ShoeBox is
      */
     function tokenURI(
         uint256 tokenId
-    ) public view virtual override (ERC721A, IERC721A) returns (string memory) {
+    ) public view virtual override (ERC721A) returns (string memory) {
         require(_exists(tokenId), "Token does not exist");
 
         bytes memory dataURI = abi.encodePacked(
@@ -292,7 +292,7 @@ contract ShoeBox is
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC721A, ERC2981, IERC721A) returns (bool) {
+    ) public view virtual override(ERC721A, ERC2981) returns (bool) {
         // Supports the following `interfaceId`s:
         // - IERC165: 0x01ffc9a7
         // - IERC721: 0x80ac58cd

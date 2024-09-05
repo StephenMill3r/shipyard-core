@@ -17,7 +17,7 @@ abstract contract ERC721CUpgradeable is ERC721Upgradeable, CreatorTokenBaseUpgra
     }
 
     /// @dev Ties the open-zeppelin _beforeTokenTransfer hook to more granular transfer validation logic
-    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {
+    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual override {
         for (uint256 i = 0; i < batchSize; ) {
             _validateBeforeTransfer(from, to, firstTokenId + i);
             unchecked {
@@ -27,7 +27,7 @@ abstract contract ERC721CUpgradeable is ERC721Upgradeable, CreatorTokenBaseUpgra
     }
 
     /// @dev Ties the open-zeppelin _afterTokenTransfer hook to more granular transfer validation logic
-    function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual {
+    function _afterTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize) internal virtual override {
         for (uint256 i = 0; i < batchSize; ) {
             _validateAfterTransfer(from, to, firstTokenId + i);
             unchecked {

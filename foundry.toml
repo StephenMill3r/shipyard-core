@@ -15,7 +15,7 @@ remappings = [
 ]
 # bytecode_hash = 'none'
 ignored_error_codes = ['license', 'code-size', 'init-code-size', 2519]
-optimizer_runs = 99_999_999
+optimizer_runs = 200
 
 [profile.lite.fuzz]
 runs = 1

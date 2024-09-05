@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/common/ERC2981Upgradeable.sol";
@@ -8,7 +8,7 @@ import {ERC721CUpgradeable} from "@limitbreak/erc721c/ERC721C.sol";
 import {BasicRoyaltiesUpgradeable} from "@limitbreak/programmable-royalties/BasicRoyaltiesUpgradeable.sol";
 
 interface ITraitManager {
-    function initializeTraits(uint256 tokenId, string[16] calldata keys, string[16] calldata values) external;
+    function initializeTraits(uint256 tokenId, string[17] calldata keys, string[17] calldata values) external;
     function updateTraits(uint256 tokenId, string[3] calldata keys, string[3] calldata values) external;
     function tokenURI(uint256 tokenId) external view returns (string memory);
     function setBaseURI(string calldata newBaseURI) external;
@@ -26,7 +26,7 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
     ) public initializer {
         __ERC2981_init();
         __ERC721_init(_name, _symbol);
-        __Ownable_init(msg.sender);
+        __Ownable_init();
 
         _trustedAddress = trustedAddress;
         traitManager = ITraitManager(traitManagerAddress);
@@ -56,8 +56,8 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
 
     function initializeTraits(
         uint256 tokenId, 
-        string[16] calldata keys, 
-        string[16] calldata values
+        string[17] calldata keys, 
+        string[17] calldata values
     ) external onlyTrusted {
         traitManager.initializeTraits(tokenId, keys, values);
     }
@@ -79,6 +79,11 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
         for (uint i = 0; i < _tokenOwners.length; i++) {
             _safeMint(_tokenOwners[i], _tokenIds[i]); // this emits a Transfer event during the _mint function call
         }
+    }
+
+    function setTraitManager(address newTraitManagerAddress) external onlyOwner {
+        require(newTraitManagerAddress != address(0), "Invalid TraitManager address");
+        traitManager = ITraitManager(newTraitManagerAddress);
     }
 
     function supportsInterface(bytes4 interfaceId) public view override(ERC721CUpgradeable, ERC2981Upgradeable) returns (bool) {
