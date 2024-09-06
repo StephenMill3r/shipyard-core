@@ -1,0 +1,116 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./TraitsManagerV2.sol";
+
+contract TraitAvailability is Ownable, VRFConsumerBase {
+    address public shoeboxMintingContract;
+    address public traitsManager;
+    bytes32 internal keyHash;
+    uint256 internal fee;
+    uint256 public randomResult;
+
+    // Struct to manage trait availability
+    struct TraitAvailabilityData {
+        uint256 quantityAvailable;
+        bool isActive;
+    }
+
+    // Map to track quantities and whether a trait is available
+    mapping(uint256 => TraitAvailabilityData) public traitAvailability;
+
+    event TraitActivated(uint256 indexed traitId, uint256 quantity);
+    event TraitDeactivated(uint256 indexed traitId);
+    event TraitQuantityReduced(uint256 indexed traitId, uint256 quantity);
+
+    // Constructor for Chainlink setup
+    constructor(
+        address _vrfCoordinator,
+        address _linkToken,
+        bytes32 _keyHash,
+        uint256 _fee,
+        address _traitsManager
+    ) VRFConsumerBase(_vrfCoordinator, _linkToken) {
+        keyHash = _keyHash;
+        fee = _fee; // LINK fee for VRF
+        traitsManager = _traitsManager;
+    }
+
+    // Set the shoebox minting contract (trusted contract)
+    function setShoeboxMintingContract(address _shoeboxMintingContract) external onlyOwner {
+        shoeboxMintingContract = _shoeboxMintingContract;
+    }
+
+    // Activate a trait with a specific quantity
+    function activateTrait(uint256 traitId, uint256 quantity) external onlyOwner {
+        require(traitId > 0, "Invalid traitId");
+        traitAvailability[traitId] = TraitAvailabilityData({
+            quantityAvailable: quantity,
+            isActive: true
+        });
+        emit TraitActivated(traitId, quantity);
+    }
+
+    // Deactivate a trait (turn off)
+    function deactivateTrait(uint256 traitId) external onlyOwner {
+        require(traitAvailability[traitId].isActive, "Trait is not active");
+        traitAvailability[traitId].isActive = false;
+        emit TraitDeactivated(traitId);
+    }
+
+    // Chainlink VRF request for randomness
+    function requestRandomTrait() external returns (bytes32 requestId) {
+        require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK to pay fee");
+        return requestRandomness(keyHash, fee);
+    }
+
+    // Callback function for Chainlink VRF
+    function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
+        randomResult = randomness;
+        // Process randomness to choose an available traitId
+        uint256 traitId = selectRandomTrait(randomness);
+        require(traitId > 0, "No valid traitId selected");
+        // Reduce quantity of the selected trait
+        traitAvailability[traitId].quantityAvailable--;
+        if (traitAvailability[traitId].quantityAvailable == 0) {
+            traitAvailability[traitId].isActive = false; // Turn off if no quantities remain
+        }
+
+        emit TraitQuantityReduced(traitId, 1);
+    }
+
+    // Select an active trait based on randomness
+    function selectRandomTrait(uint256 randomness) internal view returns (uint256) {
+        uint256[] memory activeTraits = getActiveTraits();
+        if (activeTraits.length == 0) return 0;
+
+        uint256 index = randomness % activeTraits.length;
+        return activeTraits[index];
+    }
+
+    // Get all active traits
+    function getActiveTraits() public view returns (uint256[] memory) {
+        uint256 count = 0;
+        uint256 totalTraits = TraitsManagerV2(traitsManager).nextTraitId();
+
+        for (uint256 i = 1; i < totalTraits; i++) {
+            if (traitAvailability[i].isActive && traitAvailability[i].quantityAvailable > 0) {
+                count++;
+            }
+        }
+
+        uint256[] memory activeTraits = new uint256[](count);
+        uint256 j = 0;
+
+        for (uint256 i = 1; i < totalTraits; i++) {
+            if (traitAvailability[i].isActive && traitAvailability[i].quantityAvailable > 0) {
+                activeTraits[j] = i;
+                j++;
+            }
+        }
+
+        return activeTraits;
+    }
+}

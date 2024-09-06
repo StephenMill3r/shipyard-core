@@ -8,11 +8,15 @@ import {ERC721CUpgradeable} from "@limitbreak/erc721c/ERC721C.sol";
 import {BasicRoyaltiesUpgradeable} from "@limitbreak/programmable-royalties/BasicRoyaltiesUpgradeable.sol";
 
 interface ITraitManager {
-    function updateTraits(uint256 tokenId, string[] calldata keys, string[] calldata values) external;
+    function updateTraits(uint256 tokenId, uint256[] calldata traitIds) external;
     function tokenURI(uint256 tokenId) external view returns (string memory);
     function setBaseURI(string calldata newBaseURI) external;
-    function removeTrait(uint256 tokenId, string calldata key) external;
-    function InitialTraitsBulk(uint256[] calldata tokenIds, string calldata key, string[] calldata values) external;
+    function removeTrait(uint256 tokenId, uint256 traitId) external;
+    function initialTraitsBulk(uint256[] calldata tokenIds, uint256[] calldata traitIds) external;
+    function defineTrait(string calldata key, string calldata value) external returns (uint256);
+    function setIncompatibleTraits(uint256 traitId, uint256[] calldata incompatibleTraitIds) external;
+    function addExemptKey(string calldata key) external;
+    function removeExemptKey(string calldata key) external;
 }
 
 contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesUpgradeable, OwnableUpgradeable {
@@ -57,27 +61,45 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
         traitManager.setBaseURI(newBaseURI);
     }
 
-    // Update traits for a specific tokenId
+    // Define a new trait and return the traitId
+    function defineTrait(string calldata key, string calldata value) external onlyTrusted returns (uint256) {
+        return traitManager.defineTrait(key, value);
+    }
+
+    // Set incompatible traits for a specific traitId
+    function setIncompatibleTraits(uint256 traitId, uint256[] calldata incompatibleTraitIds) external onlyTrusted {
+        traitManager.setIncompatibleTraits(traitId, incompatibleTraitIds);
+    }
+
+    // Add an exempt key to the trait manager
+    function addExemptKey(string calldata key) external onlyTrusted {
+        traitManager.addExemptKey(key);
+    }
+
+    // Remove an exempt key from the trait manager
+    function removeExemptKey(string calldata key) external onlyTrusted {
+        traitManager.removeExemptKey(key);
+    }
+
+    // Update traits for a specific tokenId using traitIds
     function updateTraits(
         uint256 tokenId,
-        string[] calldata keys,
-        string[] calldata values
+        uint256[] calldata traitIds
     ) external onlyTrusted {
-        traitManager.updateTraits(tokenId, keys, values);
+        traitManager.updateTraits(tokenId, traitIds);
     }
 
-    // Remove a specific trait by key for a tokenId
-    function removeTrait(uint256 tokenId, string calldata key) external onlyTrusted {
-        traitManager.removeTrait(tokenId, key);
+    // Remove a specific trait by traitId for a tokenId
+    function removeTrait(uint256 tokenId, uint256 traitId) external onlyTrusted {
+        traitManager.removeTrait(tokenId, traitId);
     }
 
-    // Bulk initialize traits for multiple tokenIds
+    // Bulk initialize traits for multiple tokenIds using traitIds
     function initializeTraitsBulk(
         uint256[] calldata tokenIds,
-        string calldata key,
-        string[] calldata values
+        uint256[] calldata traitIds
     ) external onlyTrusted {
-        traitManager.InitialTraitsBulk(tokenIds, key, values);
+        traitManager.initialTraitsBulk(tokenIds, traitIds);
     }
 
     // Return tokenURI by fetching from TraitManager
