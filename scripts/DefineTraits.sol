@@ -22,7 +22,7 @@ contract DefineTraits is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Get the instance of the deployed TraitsManagerV2 contract
-        CryptoDadsOnchain traitsManager = CryptoDadsOnchain(nftContractAddress);
+        CryptoDadsOnchain traitsManager = CryptoDadsOnchain(traitsManagerAddress);
 
         // Loop through the arrays and define each trait
         for (uint256 i = 0; i < traitIds.length; i++) {

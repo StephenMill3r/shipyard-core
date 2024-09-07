@@ -12,8 +12,8 @@ interface ITraitManager {
     function tokenURI(uint256 tokenId) external view returns (string memory);
     function setBaseURI(string calldata newBaseURI) external;
     function removeTrait(uint256 tokenId, uint256 traitId) external;
-    function initialTraitsBulk(uint256[] calldata tokenIds, uint256[] calldata traitIds) external;
-    function defineTrait(string calldata key, string calldata value) external returns (uint256);
+    function initialTraitsBulk(uint256[] calldata tokenIds, uint256[][] calldata traitIdsList) external;
+    function defineTrait(uint256 traitId, bytes32 key, bytes32 value) external;
     function setIncompatibleTraits(uint256 traitId, uint256[] calldata incompatibleTraitIds) external;
     function addExemptKey(string calldata key) external;
     function removeExemptKey(string calldata key) external;
@@ -62,8 +62,8 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
     }
 
     // Define a new trait and return the traitId
-    function defineTrait(string calldata key, string calldata value) external onlyTrusted returns (uint256) {
-        return traitManager.defineTrait(key, value);
+    function defineTrait(uint256 traitId, bytes32 key, bytes32 value) external onlyTrusted {
+        traitManager.defineTrait(traitId, key, value);
     }
 
     // Set incompatible traits for a specific traitId
@@ -94,12 +94,12 @@ contract CryptoDadsOnchain is Initializable, ERC721CUpgradeable, BasicRoyaltiesU
         traitManager.removeTrait(tokenId, traitId);
     }
 
-    // Bulk initialize traits for multiple tokenIds using traitIds
+    // Bulk initialize traits for multiple tokenIds using arrays of traitIds
     function initializeTraitsBulk(
         uint256[] calldata tokenIds,
-        uint256[] calldata traitIds
+        uint256[][] calldata traitIdsList
     ) external onlyTrusted {
-        traitManager.initialTraitsBulk(tokenIds, traitIds);
+        traitManager.initialTraitsBulk(tokenIds, traitIdsList);
     }
 
     // Return tokenURI by fetching from TraitManager
