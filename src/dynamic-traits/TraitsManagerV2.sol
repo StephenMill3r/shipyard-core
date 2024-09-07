@@ -49,6 +49,7 @@ contract TraitsManagerV2 is Initializable {
     event ExemptKeyRemoved(bytes32 key);
     event TokenNameSet(uint256 indexed tokenId, string name);
     event ModeratorSet(address moderator);
+    event NFTContractUpdated(address oldContract, address newContract);
 
     modifier onlyNFTContract() {
         require(msg.sender == nftContract, "Caller is not the NFT contract");
@@ -66,6 +67,14 @@ contract TraitsManagerV2 is Initializable {
         baseURI = _baseURI;
         nextTraitId = 1;
         moderator = _moderator;
+    }
+
+    // New function to update the NFT contract address
+    function updateNFTContract(address _newNFTContract) external onlyModeratorOrNFTContract {
+        require(_newNFTContract != address(0), "New NFT contract cannot be the zero address");
+        address oldContract = nftContract;
+        nftContract = _newNFTContract;
+        emit NFTContractUpdated(oldContract, _newNFTContract);
     }
 
     // Function to store dad jokes in a batch using SSTORE2

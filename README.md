@@ -1,5 +1,16 @@
 ![Shipyard](img/shipyard-banner.jpg)
 
+1. Deploy TraitManager
+2. Run DefineTraits Script
+3. Run JS script or manually enter batches of InitializeTraitBatch function to load
+4. Run DadJokes Script
+5.  
+
+
+
+
+
+
 # Quick Start Guide
 
 To deploy an NFT contract to the Goerli testnet, fund an address with 0.25 Goerli ETH, swap in the appropriate values for `<your_key>` and `<your_pk>` in this command, open a terminal window, and run the following:
